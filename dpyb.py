@@ -29,7 +29,7 @@ def CreateDataBase(DataBaseFile):
     DataBaseFile = GetDataBaseName(DataBaseFile)
 
     File = open(DataBaseFile, "w+")
-    File.write("# a d-py-b database file\n# d-py-b, a simple python database by darkstarshine2011\n\n# ---")
+    File.write("# a d-py-b database file\n# d-py-b, a simple python database by darkstarshine2011\n\n")
     File.close()
 
 def AddTableToDataBase(DataBaseFile, TableName):
@@ -38,7 +38,7 @@ def AddTableToDataBase(DataBaseFile, TableName):
     """
     CreateBackup(DataBaseFile)
     DBData = open(GetDataBaseName(DataBaseFile), "r").read()
-    if f"{TableName} =" not in DBData and f"{TableName}=" not in DBData:
+    if f"\n{TableName} =" not in DBData and f"\n{TableName}=" not in DBData:
         DBFile = open(DataBaseFile, "a")
         DBFile.write(f"""\n\n# ---\n\n{TableName} = {{1:{{1:""}}}}""")
 
