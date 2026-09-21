@@ -1,6 +1,7 @@
 # d-py-b, a simple python database by darkstarshine2011
 
-from datetime import now
+from datetime import datetime
+from os import makedirs
 
 def GetDataBaseName(DataBaseFile):
     if DataBaseFile[-8:] == ".dpyb.py":
@@ -14,9 +15,10 @@ def GetDataBaseName(DataBaseFile):
     return DataBaseFile
 
 def CreateBackup(DataBaseFile):
+    makedirs("Backup", exist_ok=True)
     LoadForBackup = open(GetDataBaseName(DataBaseFile), "r")
-    BackupFile = open(f"Backup/{now()}.dpyb.py.backup", "w")
-    BackupFile.write(LoadForBackup)
+    BackupFile = open(f"Backup/{datetime.now().strftime("%Y%m%d_%H%M%S_%f")}.dpyb.py.backup", "w+")
+    BackupFile.write(LoadForBackup.read())
     BackupFile.close()
     LoadForBackup.close()
 
@@ -26,14 +28,20 @@ def CreateDataBase(DataBaseFile):
     """
     DataBaseFile = GetDataBaseName(DataBaseFile)
 
-    File = open(DataBaseFile, "w")
-    File.write("# a d-py-b database file\n# d-py-b, a simple python database by darkstarshine2011\n\n---")
+    File = open(DataBaseFile, "w+")
+    File.write("# a d-py-b database file\n# d-py-b, a simple python database by darkstarshine2011\n\n# ---")
     File.close()
 
 def AddTableToDataBase(DataBaseFile, TableName):
+    """
+    adds a new table into the database
+    """
     CreateBackup(DataBaseFile)
-    DBData = open(DataBaseFile, "r")
-    if f"{TableName} =" not in DBData or f"{TableName}=" not in DBData:
+    DBData = open(GetDataBaseName(DataBaseFile), "r").read()
+    if f"{TableName} =" not in DBData and f"{TableName}=" not in DBData:
         DBFile = open(DataBaseFile, "a")
-        DBFile.write(f"""{DBData}\n\n---\n\n{TableName} = \{1:\{1:""}}""")
-    DBData.close()
+        DBFile.write(f"""\n\n# ---\n\n{TableName} = {{1:{{1:""}}}}""")
+
+
+def AddRow(DataBaseFile, TableName, Rows):
+    pass
