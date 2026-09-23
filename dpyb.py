@@ -107,3 +107,8 @@ def AddColumn(DataBaseFile, TableName, DefaultValue=""): # This function is crea
     File.close()
 
 
+def WriteData(DataBaseFile, TableName, Row, Column):
+    pass
+
+def ReadData(DataBaseFile, TableName, Row, Column):
+    pass
