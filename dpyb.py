@@ -168,14 +168,81 @@ def DeleteRow(DataBaseFile, TableName, Row):
     File.close()
 
 
-def DeleteColumn():
-    pass
+def DeleteColumn(DataBaseFile, TableName, Column): # This one is made by DeepSeek too... What is it? Do you think I am too lazy? I know :/ I am :|
+    """
+    deletes a column from every row of the table
+    """
+    CreateBackup(DataBaseFile)
 
-def DeleteTable():
-    pass
+    Name = GetDataBaseName(DataBaseFile)
+    File = open(Name, "r")
+    Lines = File.readlines()
+    File.close()
 
-def ListTables():
-    pass
+    Prefix = f"{TableName} = "
+    for i in range(len(Lines)):
+        if Lines[i].startswith(Prefix):
+            Table = literal_eval(Lines[i][len(Prefix):].strip())
 
-def GetTable():
-    pass
+            # حذف ستون مورد نظر از همه‌ی ردیف‌ها
+            for RowID in Table:
+                del Table[RowID][Column]
+
+            Lines[i] = f"{TableName} = {Table}\n"
+            break
+
+    File = open(Name, "w")
+    File.writelines(Lines)
+    File.close()
+
+def DeleteTable(DataBaseFile, TableName):
+    """
+    deletes a table from database
+    """
+    CreateBackup(DataBaseFile)
+
+    File = open(GetDataBaseName(DataBaseFile), "r")
+    Lines = File.readlines()
+    File.close()
+    Prefix = f"{TableName} = "
+    for i in range(len(Lines)):
+        if Lines[i].startswith(Prefix):
+            del Lines[i-3:i+1]
+            break
+
+    File = open(GetDataBaseName(DataBaseFile), "w")
+    File.writelines(Lines)
+    File.close()
+
+
+def ListTables(DataBaseFile):
+    """
+    list the tables inside a database
+    """
+    File = open(GetDataBaseName(DataBaseFile), "r")
+    Lines = File.readlines()
+    File.close()
+    Tables = list()
+    Prefix = " = "
+    for i in range(len(Lines)):
+        if (Prefix in Lines[i]) and (not Lines[i].startswith("#")):
+            TableName = Lines[i].split(" = ")[0]    
+            Tables.append(TableName)
+
+    return Tables
+
+
+def GetTable(DataBaseFile, TableName):
+    """
+    returns content of a table    
+    """
+    File = open(GetDataBaseName(DataBaseFile), "r")
+    Lines = File.readlines()
+    File.close()
+    Prefix = f"{TableName} = "
+    for i in range(len(Lines)):
+        if Lines[i].startswith(Prefix):
+            Table = literal_eval(Lines[i][len(Prefix):].strip())
+            break
+
+    return Table
