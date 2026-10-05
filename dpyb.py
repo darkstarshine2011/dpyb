@@ -108,6 +108,9 @@ def AddColumn(DataBaseFile, TableName, DefaultValue=""): # This function is crea
 
 
 def WriteData(DataBaseFile, TableName, Row, Column, Value):
+    """
+    writes data into a cell
+    """
     CreateBackup(DataBaseFile)
 
     Name = GetDataBaseName(DataBaseFile)
@@ -128,8 +131,10 @@ def WriteData(DataBaseFile, TableName, Row, Column, Value):
 
 
 def ReadData(DataBaseFile, TableName, Row, Column):
-    Name = GetDataBaseName(DataBaseFile)
-    File = open(Name, "r")
+    """
+    reads data from a cell
+    """
+    File = open(GetDataBaseName(DataBaseFile), "r")
     Lines = File.readlines()
     File.close()
     Prefix = f"{TableName} = "
@@ -142,3 +147,35 @@ def ReadData(DataBaseFile, TableName, Row, Column):
 
     return Data
 
+def DeleteRow(DataBaseFile, TableName, Row):
+    """
+    deletes a row from a table
+    """
+    CreateBackup(DataBaseFile)
+    File = open(GetDataBaseName(DataBaseFile), "r")
+    Lines = File.readlines()
+    File.close()
+    Prefix = f"{TableName} = "
+    for i in range(len(Lines)):
+        if Lines[i].startswith(Prefix):
+            Table = literal_eval(Lines[i][len(Prefix):].strip())
+            del Table[Row]
+            Lines[i] = f"{TableName} = {Table}\n"
+            break
+
+    File = open(GetDataBaseName(DataBaseFile), "w")
+    File.writelines(Lines)
+    File.close()
+
+
+def DeleteColumn():
+    pass
+
+def DeleteTable():
+    pass
+
+def ListTables():
+    pass
+
+def GetTable():
+    pass
