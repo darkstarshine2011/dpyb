@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dpyb"
+version = "0.1.0"
+description = "A simple file-based Python database"
+readme = "README.md"
+requires-python = ">=3.12"
+license = "AGPL-3.0-or-later"
+license-files = ["LICENSE"]
+authors = [
+    {name = "darkstarshine2011"}
+]
+keywords = ["database", "file-based", "simple", "python", "dpyb"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+Homepage = "https://github.com/darkstarshine2011/d-py-b"
+Repository = "https://github.com/darkstarshine2011/d-py-b"
