@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+*.dpyb.py
+Backup/
+dist/
+build/
+*.egg-info/
+.vscode/
+.venv/
+venv/
