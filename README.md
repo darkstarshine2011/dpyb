@@ -246,3 +246,5 @@ See the [LICENSE](LICENSE) file for the full text.
 ## Author
 
 Made by **darkstarshine2011**
+
+[![PyPI version](https://badge.fury.io/py/dpyb.svg)](https://pypi.org/project/dpyb/)
