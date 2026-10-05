@@ -108,7 +108,39 @@ def AddColumn(DataBaseFile, TableName, DefaultValue=""): # This function is crea
 
 
 def WriteData(DataBaseFile, TableName, Row, Column, Value):
-    pass
+    CreateBackup(DataBaseFile)
+
+    Name = GetDataBaseName(DataBaseFile)
+    File = open(Name, "r")
+    Lines = File.readlines()
+    File.close()
+    Prefix = f"{TableName} = "
+    for i in range(len(Lines)):
+        if Lines[i].startswith(Prefix):
+            Table = literal_eval(Lines[i][len(Prefix):].strip())
+            Table[Row][Column] = Value
+            Lines[i] = f"{TableName} = {Table}\n"
+            break
+
+    File = open(Name, "w")
+    File.writelines(Lines)
+    File.close()
+
 
 def ReadData(DataBaseFile, TableName, Row, Column):
-    pass
+    CreateBackup(DataBaseFile)
+
+    Name = GetDataBaseName(DataBaseFile)
+    File = open(Name, "r")
+    Lines = File.readlines()
+    File.close()
+    Prefix = f"{TableName} = "
+    for i in range(len(Lines)):
+        if Lines[i].startswith(Prefix):
+            Table = literal_eval(Lines[i][len(Prefix):].strip())
+            Data = Table[Row][Column]
+
+            break
+
+    return Data
+
