@@ -1,4 +1,4 @@
-# d-py-b, a simple python database by darkstarshine2011
+# dpyb, a simple python database by darkstarshine2011
 
 from datetime import datetime
 from os import makedirs

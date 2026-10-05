@@ -20,5 +20,5 @@ classifiers = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/darkstarshine2011/d-py-b"
-Repository = "https://github.com/darkstarshine2011/d-py-b"
+Homepage = "https://github.com/darkstarshine2011/dpyb"
+Repository = "https://github.com/darkstarshine2011/dpyb"
