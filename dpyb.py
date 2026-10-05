@@ -128,8 +128,6 @@ def WriteData(DataBaseFile, TableName, Row, Column, Value):
 
 
 def ReadData(DataBaseFile, TableName, Row, Column):
-    CreateBackup(DataBaseFile)
-
     Name = GetDataBaseName(DataBaseFile)
     File = open(Name, "r")
     Lines = File.readlines()
