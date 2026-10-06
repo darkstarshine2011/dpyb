@@ -1,8 +1,8 @@
-# d-py-b
+# dpyb
 
 A simple, dependency-free, file-based Python database.
 
-`d-py-b` is a lightweight database that stores all its data in a single Python-readable file with the `.dpyb.py` extension. Every table is a plain Python dictionary, so you can read, inspect, and even version-control your database with Git.
+`dpyb` is a lightweight database that stores all its data in a single Python-readable file with the `.dpyb.py` extension. Every table is a plain Python dictionary, so you can read, inspect, and even version-control your database with Git.
 
 - **Zero dependencies** — only Python standard library
 - **Human-readable format** — data is stored as plain Python dicts
