@@ -44,13 +44,13 @@ def AddTableToDataBase(DataBaseFile, TableName):
         DBFile.write(f"""\n\n# ---\n\n{TableName} = {{1:{{1:""}}}}""")
         DBFile.close()
 
-def AddRow(DataBaseFile, TableName, Rows): # Debuged by DeepSeek :)
+def AddRow(DataBaseFile, TableName, Rows=None): # Debuged by DeepSeek :)
     """
     adds a row into the table
     """
     if Rows is None:
         Rows = {}
-        
+
     CreateBackup(DataBaseFile)
 
     Name = GetDataBaseName(DataBaseFile)
