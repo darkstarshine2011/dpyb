@@ -48,6 +48,9 @@ def AddRow(DataBaseFile, TableName, Rows): # Debuged by DeepSeek :)
     """
     adds a row into the table
     """
+    if Rows is None:
+        Rows = {}
+        
     CreateBackup(DataBaseFile)
 
     Name = GetDataBaseName(DataBaseFile)
