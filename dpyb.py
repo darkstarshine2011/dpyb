@@ -44,10 +44,7 @@ def AddTableToDataBase(DataBaseFile, TableName):
         DBFile.write(f"""\n\n# ---\n\n{TableName} = {{1:{{1:""}}}}""")
         DBFile.close()
 
-def AddRow(DataBaseFile, TableName, Rows=None): # Debuged by DeepSeek :)
-    """
-    adds a row into the table
-    """
+def AddRow(DataBaseFile, TableName, Rows=None): #Debuged By DeepSeek
     if Rows is None:
         Rows = {}
 
@@ -63,7 +60,22 @@ def AddRow(DataBaseFile, TableName, Rows=None): # Debuged by DeepSeek :)
         if Lines[i].startswith(Prefix):
             Table = literal_eval(Lines[i][len(Prefix):].strip())
             NewID = (max(Table.keys()) + 1) if Table else 1
-            Table[NewID] = Rows
+
+            # جمع کردن همه‌ی ستون‌های موجود در جدول
+            AllCols = set()
+            for RowID in Table:
+                for ColID in Table[RowID]:
+                    AllCols.add(ColID)
+
+            # ردیف جدید با همه‌ی ستون‌ها، مقدار پیش‌فرض خالی
+            NewRow = {}
+            for ColID in AllCols:
+                NewRow[ColID] = ""
+
+            # بعد مقادیر کاربر روی اینا می‌شینه
+            NewRow.update(Rows)
+
+            Table[NewID] = NewRow
             Lines[i] = f"{TableName} = {Table}\n"
             break
 
