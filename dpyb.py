@@ -44,10 +44,10 @@ def AddTableToDataBase(DataBaseFile, TableName):
         DBFile.write(f"""\n\n# ---\n\n{TableName} = {{1:{{1:""}}}}""")
         DBFile.close()
 
-def AddRow(DataBaseFile, TableName, Rows=None): #Debuged By DeepSeek
-    if Rows is None:
-        Rows = {}
-
+def AddRow(DataBaseFile, TableName, Rows=1): # Debuged by DeepSeek... Just fixed a bug that it made itself while debuging my code :/
+    """
+    adds row to the table
+    """
     CreateBackup(DataBaseFile)
 
     Name = GetDataBaseName(DataBaseFile)
@@ -59,23 +59,25 @@ def AddRow(DataBaseFile, TableName, Rows=None): #Debuged By DeepSeek
     for i in range(len(Lines)):
         if Lines[i].startswith(Prefix):
             Table = literal_eval(Lines[i][len(Prefix):].strip())
-            NewID = (max(Table.keys()) + 1) if Table else 1
 
-            # جمع کردن همه‌ی ستون‌های موجود در جدول
+            # collect all existing columns in the table
             AllCols = set()
             for RowID in Table:
                 for ColID in Table[RowID]:
                     AllCols.add(ColID)
 
-            # ردیف جدید با همه‌ی ستون‌ها، مقدار پیش‌فرض خالی
-            NewRow = {}
-            for ColID in AllCols:
-                NewRow[ColID] = ""
+            # if the table is empty, default to one column
+            if not AllCols:
+                AllCols = {1}
 
-            # بعد مقادیر کاربر روی اینا می‌شینه
-            NewRow.update(Rows)
+            # create N new rows, each with all existing columns
+            for _ in range(Rows):
+                NewID = (max(Table.keys()) + 1) if Table else 1
+                NewRow = {}
+                for ColID in AllCols:
+                    NewRow[ColID] = ""
+                Table[NewID] = NewRow
 
-            Table[NewID] = NewRow
             Lines[i] = f"{TableName} = {Table}\n"
             break
 
@@ -84,11 +86,11 @@ def AddRow(DataBaseFile, TableName, Rows=None): #Debuged By DeepSeek
     File.close()
 
 
-def AddColumn(DataBaseFile, TableName, DefaultValue=""): # This function is created by DeepSeek, Because I was too lazy to do it :/ ... I mean who the f*ck cares? it just works :///
+def AddColumn(DataBaseFile, TableName, Columns=1): # Fixed by DeepSeek, take 3 :||||
     """
-    adds a new column to every row of the table
-    DefaultValue: مقدار پیش‌فرض برای خونه‌های جدید
-    Returns the new column id
+    adds N columns to every row of the table
+    Columns: number of columns to create (default is 1)
+    Each new column is filled with empty values.
     """
     CreateBackup(DataBaseFile)
 
@@ -102,17 +104,18 @@ def AddColumn(DataBaseFile, TableName, DefaultValue=""): # This function is crea
         if Lines[i].startswith(Prefix):
             Table = literal_eval(Lines[i][len(Prefix):].strip())
 
-            # پیدا کردن بزرگ‌ترین شماره ستون موجود
+            # find the biggest existing column id
             MaxCol = 0
             for RowID in Table:
                 for ColID in Table[RowID]:
                     if ColID > MaxCol:
                         MaxCol = ColID
-            NewCol = MaxCol + 1
 
-            # اضافه کردن ستون جدید به همه‌ی ردیف‌ها
-            for RowID in Table:
-                Table[RowID][NewCol] = DefaultValue
+            # add N new columns, each filled with ""
+            for _ in range(Columns):
+                MaxCol += 1
+                for RowID in Table:
+                    Table[RowID][MaxCol] = ""
 
             Lines[i] = f"{TableName} = {Table}\n"
             break
@@ -120,7 +123,6 @@ def AddColumn(DataBaseFile, TableName, DefaultValue=""): # This function is crea
     File = open(Name, "w")
     File.writelines(Lines)
     File.close()
-
 
 def WriteData(DataBaseFile, TableName, Row, Column, Value):
     """

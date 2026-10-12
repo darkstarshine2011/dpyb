@@ -1,13 +1,17 @@
+[![PyPI version](https://badge.fury.io/py/dpyb.svg)](https://pypi.org/project/dpyb/)
+[![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
+
 # dpyb
 
 A simple, dependency-free, file-based Python database.
 
 `dpyb` is a lightweight database that stores all its data in a single Python-readable file with the `.dpyb.py` extension. Every table is a plain Python dictionary, so you can read, inspect, and even version-control your database with Git.
 
-- **Zero dependencies** — only Python standard library
+- **Zero dependencies** — only the Python standard library
 - **Human-readable format** — data is stored as plain Python dicts
 - **Automatic backups** — every write operation creates a timestamped backup
 - **Simple API** — 13 functions, no classes to learn
+- **Consistent tables** — rows and columns never go out of sync
 
 ---
 
@@ -36,15 +40,17 @@ dpyb.CreateDataBase("mydb")
 # Add a table
 dpyb.AddTableToDataBase("mydb", "users")
 
-# Add rows
-dpyb.AddRow("mydb", "users", {1: "Ali", 2: 25})
-dpyb.AddRow("mydb", "users", {1: "Sara", 2: 30})
+# Add 5 empty rows and 2 extra columns
+dpyb.AddRow("mydb", "users", 5)      # 6 rows total
+dpyb.AddColumn("mydb", "users", 2)   # 3 columns total
+
+# Fill some cells
+dpyb.WriteData("mydb", "users", 1, 1, "Ali")
+dpyb.WriteData("mydb", "users", 1, 2, 25)
+dpyb.WriteData("mydb", "users", 1, 3, "Tehran")
 
 # Read a cell
 print(dpyb.ReadData("mydb", "users", 1, 1))   # "Ali"
-
-# Write a cell
-dpyb.WriteData("mydb", "users", 1, 2, 26)
 ```
 
 The file `mydb.dpyb.py` will look like this:
@@ -55,14 +61,21 @@ The file `mydb.dpyb.py` will look like this:
 
 # ---
 
-users = {1: {1: 'Ali', 2: 26}, 2: {1: 'Sara', 2: 30}}
+users = {
+    1: {1: 'Ali', 2: 25, 3: 'Tehran'},
+    2: {1: '', 2: '', 3: ''},
+    3: {1: '', 2: '', 3: ''},
+    4: {1: '', 2: '', 3: ''},
+    5: {1: '', 2: '', 3: ''},
+    6: {1: '', 2: '', 3: ''},
+}
 ```
 
 ---
 
 ## Data model
 
-A d-py-b database is a set of tables. Each table is a dictionary:
+A `dpyb` database is a set of tables. Each table is a dictionary:
 
 ```
 Table = {
@@ -82,7 +95,15 @@ users = {
 ```
 
 - **Row IDs** and **Column IDs** are integers.
-- **Values** can be any Python literal (str, int, float, bool, None, list, dict, tuple).
+- **Values** can be any Python literal: `str`, `int`, `float`, `bool`, `None`, `list`, `dict`, `tuple`.
+
+### How `AddRow` and `AddColumn` work
+
+- `AddRow(db, table, N)` adds **N** new rows. Each new row inherits **every column that already exists** in the table, filled with `""`.
+- `AddColumn(db, table, N)` adds **N** new columns to **every row** in the table, filled with `""`.
+- A newly created table starts with **1 row** and **1 column**.
+
+This means you never have to worry about rows and columns getting out of sync. Every row always has exactly the same set of columns.
 
 ---
 
@@ -94,6 +115,7 @@ Normalizes a database filename. Adds the `.dpyb.py` extension if missing.
 ```python
 dpyb.GetDataBaseName("mydb")        # "mydb.dpyb.py"
 dpyb.GetDataBaseName("mydb.dpyb")   # "mydb.dpyb.py"
+dpyb.GetDataBaseName("mydb.py")     # "mydb.dpyb.py"
 ```
 
 ### `CreateDataBase(DataBaseFile)`
@@ -109,24 +131,26 @@ Creates a timestamped backup of the database in the `Backup/` folder.
 > This is called automatically by every write operation, so you rarely need to call it manually.
 
 ### `AddTableToDataBase(DataBaseFile, TableName)`
-Adds a new empty table to the database. Does nothing if the table already exists.
+Adds a new table to the database. The table starts with 1 row and 1 column, both empty. Does nothing if the table already exists.
 
 ```python
 dpyb.AddTableToDataBase("mydb", "users")
 ```
 
-### `AddRow(DataBaseFile, TableName, Rows)`
-Adds a new row to the table. The row ID is assigned automatically.
+### `AddRow(DataBaseFile, TableName, Rows=1)`
+Adds `Rows` new rows to the table. Each new row inherits all existing columns, filled with `""`. Default is 1 row.
 
 ```python
-dpyb.AddRow("mydb", "users", {1: "Ali", 2: 25, 3: "Tehran"})
+dpyb.AddRow("mydb", "users")      # 1 new row
+dpyb.AddRow("mydb", "users", 5)   # 5 new rows
 ```
 
-### `AddColumn(DataBaseFile, TableName, DefaultValue="")`
-Adds a new column to every row of the table, filled with `DefaultValue`.
+### `AddColumn(DataBaseFile, TableName, Columns=1)`
+Adds `Columns` new columns to every row of the table, filled with `""`. Default is 1 column.
 
 ```python
-dpyb.AddColumn("mydb", "users", "unknown")
+dpyb.AddColumn("mydb", "users")      # 1 new column
+dpyb.AddColumn("mydb", "users", 3)   # 3 new columns
 ```
 
 ### `ReadData(DataBaseFile, TableName, Row, Column)`
@@ -182,16 +206,54 @@ Users = dpyb.GetTable("mydb", "users")
 
 ## Examples
 
-### Iterating over a table
+The `examples/` folder contains 15 ready-to-run scripts, from a basic hello-world to a small inventory system.
+
+| # | File | What it shows |
+|---|------|---------------|
+| 01 | Getting started | Create a database, add a table, write and read a cell |
+| 02 | Adding rows and columns | How `AddRow` and `AddColumn` keep tables consistent |
+| 03 | Reading and writing cells | Fill a small table cell by cell |
+| 04 | Iterating over a table | Loop through every row and every cell |
+| 05 | Multiple tables | One database, many independent tables |
+| 06 | Deleting | Delete rows, columns, and full tables |
+| 07 | Filling from a list | Populate a table from a Python list |
+| 08 | Simple todo list | A tiny command-line app with state |
+| 09 | Searching and filtering | Find rows matching a condition |
+| 10 | Contact book | Add / find / delete a contact |
+| 11 | Statistics on a table | Sum, average, min, max with plain Python |
+| 12 | Copying a table | Duplicate a table inside the same database |
+| 13 | Nested data | Store lists and dicts inside cells |
+| 14 | Inventory system | A small shop inventory with sell / restock |
+| 15 | Complete workflow | End-to-end tour of the entire API |
+
+### Filling a table cell by cell
 
 ```python
 import dpyb
 
 dpyb.CreateDataBase("mydb")
 dpyb.AddTableToDataBase("mydb", "users")
-dpyb.AddRow("mydb", "users", {1: "Ali", 2: 25})
-dpyb.AddRow("mydb", "users", {1: "Sara", 2: 30})
 
+# We want 2 more rows and 2 more columns
+dpyb.AddRow("mydb", "users", 2)      # now 3 rows total
+dpyb.AddColumn("mydb", "users", 2)   # now 3 columns total
+
+# Fill row 1
+dpyb.WriteData("mydb", "users", 1, 1, "Ali")
+dpyb.WriteData("mydb", "users", 1, 2, 25)
+dpyb.WriteData("mydb", "users", 1, 3, "Tehran")
+
+# Fill row 2
+dpyb.WriteData("mydb", "users", 2, 1, "Sara")
+dpyb.WriteData("mydb", "users", 2, 2, 30)
+dpyb.WriteData("mydb", "users", 2, 3, "Shiraz")
+
+print(dpyb.GetTable("mydb", "users"))
+```
+
+### Iterating over a table
+
+```python
 Users = dpyb.GetTable("mydb", "users")
 
 for RowID in Users:
@@ -200,21 +262,36 @@ for RowID in Users:
     print(f"Row {RowID}: {Name}, age {Age}")
 ```
 
-### Adding a column and filling it
+### Working with multiple tables
 
 ```python
-dpyb.AddColumn("mydb", "users", 0)   # new column filled with 0
+dpyb.CreateDataBase("mydb")
+dpyb.AddTableToDataBase("mydb", "users")
+dpyb.AddTableToDataBase("mydb", "posts")
+
+dpyb.AddRow("mydb", "users", 3)
+dpyb.AddRow("mydb", "posts", 10)
+
+print(dpyb.ListTables("mydb"))   # ["users", "posts"]
+```
+
+### Storing nested data
+
+```python
+dpyb.WriteData("mydb", "users", 1, 1, "Ali")
+dpyb.WriteData("mydb", "users", 1, 2, ["admin", "developer"])
+dpyb.WriteData("mydb", "users", 1, 3, {"country": "Iran", "active": True})
 
 Users = dpyb.GetTable("mydb", "users")
-for RowID in Users:
-    dpyb.WriteData("mydb", "users", RowID, 3, "active")
+print(Users[1][2])              # ["admin", "developer"]
+print(Users[1][3]["country"])   # "Iran"
 ```
 
 ---
 
 ## Backups
 
-Every write operation (`AddRow`, `WriteData`, `DeleteRow`, `DeleteColumn`, `DeleteTable`, `AddTableToDataBase`, `AddColumn`) creates a timestamped backup inside a `Backup/` folder next to your script.
+Every write operation (`AddRow`, `AddColumn`, `WriteData`, `DeleteRow`, `DeleteColumn`, `DeleteTable`, `AddTableToDataBase`) creates a timestamped backup inside a `Backup/` folder next to your script.
 
 ```
 Backup/
@@ -230,7 +307,7 @@ Read operations (`ReadData`, `GetTable`, `ListTables`) do **not** create backups
 ## Notes
 
 - Database files use the `.dpyb.py` extension and should **not** be edited by hand. They are valid Python files, but a wrong edit can break the parser.
-- `d-py-b` has **zero external dependencies**.
+- `dpyb` has **zero external dependencies**.
 - Not designed for concurrent writes. If multiple processes write to the same database at the same time, data loss may occur.
 - Not designed for large datasets. Every write reads and rewrites the entire file.
 
@@ -247,4 +324,9 @@ See the [LICENSE](LICENSE) file for the full text.
 
 Made by **darkstarshine2011**
 
-[![PyPI version](https://badge.fury.io/py/dpyb.svg)](https://pypi.org/project/dpyb/)
+---
+
+## Credits
+
+- **Library code** — darkstarshine2011
+- **Examples** — written by DeepSeek
