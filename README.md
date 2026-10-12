@@ -316,7 +316,7 @@ Read operations (`ReadData`, `GetTable`, `ListTables`) do **not** create backups
 ## License
 
 This project is licensed under the **GNU Affero General Public License v3.0 or later** (AGPL-3.0-or-later).
-See the [LICENSE](LICENSE) file for the full text.
+See the [LICENSE](https://github.com/darkstarshine2011/dpyb/blob/main/LICENSE) file for the full text.
 
 ---
 
